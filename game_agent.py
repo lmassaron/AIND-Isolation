@@ -170,6 +170,50 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
+    def min_value(self, game, depth):
+        """Return the minimum value"""
+
+        # RaiseTimeout when the timer expires
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            # if we reached the root level, we exit returning the actual utility
+            return self.score(game, self)
+        else:
+            value = float("inf")
+            for action in game.get_legal_moves(player=game.active_player):
+                # Enumerating the next actions
+                project_next_game_state = game.forecast_move(action)
+                # Setting the levels left in the recursion
+                levels_left = depth - 1
+                # Setting the minimum value found up so far
+                value = min(value, self.max_value(project_next_game_state, levels_left))
+
+        return value
+
+    def max_value(self, game, depth):
+        """Return the maximum value"""
+
+        # RaiseTimeout when the timer expires
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            # if we reached the root level, we exit returning the actual utility
+            return self.score(game, self)
+        else:
+            value = float("-inf")
+            for action in game.get_legal_moves(player=game.active_player):
+                # Enumerating the next actions
+                project_next_game_state = game.forecast_move(action)
+                # Setting the levels left in the recursion
+                levels_left = depth - 1
+                #  Setting the maximum value found up so far
+                value = max(value, self.min_value(project_next_game_state, levels_left))
+
+        return value
+
     def minimax(self, game, depth):
         """Implement depth-limited minimax search algorithm as described in
         the lectures.
@@ -209,12 +253,33 @@ class MinimaxPlayer(IsolationPlayer):
                 each helper function or else your agent will timeout during
                 testing.
         """
+
+        # RaiseTimeout when the timer expires
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # TODO: finish this function!
-        raise NotImplementedError
+        # Enumerate legal moves
+        legal_moves = game.get_legal_moves(player=game.active_player)
 
+        if not legal_moves:
+            # Return empty move if no legal moves available
+            return -1, -1
+        elif depth == 0:
+            # return the actual score if asked the actual level
+            return self.score(game, self)
+        else:
+            # fixing the initial response values
+            best_value = float("-inf")
+            levels_left = depth - 1
+            chosen_action = -1, -1
+            # scanning through legal moves
+            for action in legal_moves:
+                project_next_game_state = game.forecast_move(action)
+                minimum_value = self.min_value(project_next_game_state, levels_left)
+                if best_value < minimum_value:
+                    chosen_action, best_value,  = action, minimum_value
+
+        return chosen_action
 
 class AlphaBetaPlayer(IsolationPlayer):
     """Game-playing agent that chooses a move using iterative deepening minimax
