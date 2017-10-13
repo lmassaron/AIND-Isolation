@@ -192,6 +192,31 @@ class MinimaxPlayer(IsolationPlayer):
 
         return value
 
+    def minimax_search(self, game, depth):
+        """Minimax search"""
+
+        # RaiseTimeout when the timer expires
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        # Enumerate legal moves
+        legal_moves = game.get_legal_moves(player=game.active_player)
+        if not legal_moves:
+            # Return empty move if no legal moves available
+            return -1, -1
+
+        # fixing the initial response values
+        best_value = float("-inf")
+        levels_left = depth - 1
+        chosen_action = -1, -1
+        # scanning through legal moves
+        for action in legal_moves:
+            project_next_game_state = game.forecast_move(action)
+            minimum_value = self.min_value(project_next_game_state, levels_left)
+            if best_value < minimum_value:
+                chosen_action, best_value, = action, minimum_value
+        return chosen_action
+
     def max_value(self, game, depth):
         """Return the maximum value"""
 
@@ -258,27 +283,7 @@ class MinimaxPlayer(IsolationPlayer):
         if self.time_left() < self.TIMER_THRESHOLD:
             raise SearchTimeout()
 
-        # Enumerate legal moves
-        legal_moves = game.get_legal_moves(player=game.active_player)
-
-        if not legal_moves:
-            # Return empty move if no legal moves available
-            return -1, -1
-        elif depth == 0:
-            # return the actual score if asked the actual level
-            return self.score(game, self)
-        else:
-            # fixing the initial response values
-            best_value = float("-inf")
-            levels_left = depth - 1
-            chosen_action = -1, -1
-            # scanning through legal moves
-            for action in legal_moves:
-                project_next_game_state = game.forecast_move(action)
-                minimum_value = self.min_value(project_next_game_state, levels_left)
-                if best_value < minimum_value:
-                    chosen_action, best_value,  = action, minimum_value
-
+        chosen_action = self.minimax_search(game, depth)
         return chosen_action
 
 class AlphaBetaPlayer(IsolationPlayer):
