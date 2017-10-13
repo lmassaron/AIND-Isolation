@@ -170,28 +170,6 @@ class MinimaxPlayer(IsolationPlayer):
         # Return the best move from the last completed search iteration
         return best_move
 
-    def min_value(self, game, depth):
-        """Return the minimum value"""
-
-        # RaiseTimeout when the timer expires
-        if self.time_left() < self.TIMER_THRESHOLD:
-            raise SearchTimeout()
-
-        if depth == 0:
-            # if we reached the root level, we exit returning the actual utility
-            return self.score(game, self)
-        else:
-            value = float("inf")
-            for action in game.get_legal_moves(player=game.active_player):
-                # Enumerating the next actions
-                project_next_game_state = game.forecast_move(action)
-                # Setting the levels left in the recursion
-                levels_left = depth - 1
-                # Setting the minimum value found up so far
-                value = min(value, self.max_value(project_next_game_state, levels_left))
-
-        return value
-
     def minimax_search(self, game, depth):
         """Minimax search"""
 
@@ -216,6 +194,28 @@ class MinimaxPlayer(IsolationPlayer):
             if best_value < minimum_value:
                 chosen_action, best_value, = action, minimum_value
         return chosen_action
+
+    def min_value(self, game, depth):
+        """Return the minimum value"""
+
+        # RaiseTimeout when the timer expires
+        if self.time_left() < self.TIMER_THRESHOLD:
+            raise SearchTimeout()
+
+        if depth == 0:
+            # if we reached the root level, we exit returning the actual utility
+            return self.score(game, self)
+        else:
+            value = float("inf")
+            for action in game.get_legal_moves(player=game.active_player):
+                # Enumerating the next actions
+                project_next_game_state = game.forecast_move(action)
+                # Setting the levels left in the recursion
+                levels_left = depth - 1
+                # Setting the minimum value found up so far
+                value = min(value, self.max_value(project_next_game_state, levels_left))
+
+        return value
 
     def max_value(self, game, depth):
         """Return the maximum value"""
