@@ -98,8 +98,15 @@ def custom_score_3(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
-    # TODO: finish this function!
-    raise NotImplementedError
+    if game.is_loser(player):
+        return float("-inf")
+    elif game.is_winner(player):
+        return float("inf")
+    else:
+        player1_moves = game.get_legal_moves(player)
+        player2_moves = game.get_legal_moves(game.get_opponent(player))
+        common_moves = set(player1_moves) & set(player2_moves)
+        return float(len(set(player1_moves) - common_moves) - len(set(player2_moves) - common_moves))
 
 
 class IsolationPlayer:
