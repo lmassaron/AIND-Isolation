@@ -34,14 +34,20 @@ def custom_score(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
+
     if game.is_loser(player):
         return float("-inf")
     elif game.is_winner(player):
         return float("inf")
     else:
-        player_x1, player_y1 = game.get_player_location(player)
-        player_x2, player_y2 = game.get_player_location(game.get_opponent(player))
-        return float(abs(player_x1 - player_x2) + abs(player_y1 - player_y2))
+        player1 = game.get_legal_moves(player)
+        player2 = game.get_legal_moves(game.get_opponent(player))
+        common_moves = set(player1) & set(player2)
+        player1_moves = len(player1)
+        player2_moves = len(player2)
+        unique_player1_moves = len(set(player1) - common_moves)
+        unique_player2_moves = len(set(player2) - common_moves)
+        return float((player1_moves + unique_player1_moves) - (player2_moves + unique_player2_moves)) / (player1_moves + unique_player1_moves + 1)
 
 
 def custom_score_2(game, player):
@@ -66,6 +72,7 @@ def custom_score_2(game, player):
     float
         The heuristic value of the current game state to the specified player.
     """
+
     if game.is_loser(player):
         return float("-inf")
     elif game.is_winner(player):
@@ -73,7 +80,10 @@ def custom_score_2(game, player):
     else:
         player1_moves = game.get_legal_moves(player)
         player2_moves = game.get_legal_moves(game.get_opponent(player))
-        return float(len(player1_moves) - len(player2_moves))
+        center_x, center_y = int(game.width / 2), int(game.height / 2)
+        center1 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player1_moves])
+        center2 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player2_moves])
+        return center1 / (center2 + 1.0)
 
 
 def custom_score_3(game, player):
@@ -105,8 +115,11 @@ def custom_score_3(game, player):
     else:
         player1_moves = game.get_legal_moves(player)
         player2_moves = game.get_legal_moves(game.get_opponent(player))
-        common_moves = set(player1_moves) & set(player2_moves)
-        return float(len(set(player1_moves) - common_moves) - len(set(player2_moves) - common_moves))
+        score = float(0)
+        for x1, y1 in player1_moves:
+            for x2, y2 in player2_moves:
+                score += abs(x1 - x2) + abs(y1 - y2)
+        return score
 
 
 class IsolationPlayer:
