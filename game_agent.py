@@ -40,14 +40,12 @@ def custom_score(game, player):
     elif game.is_winner(player):
         return float("inf")
     else:
-        player1 = game.get_legal_moves(player)
-        player2 = game.get_legal_moves(game.get_opponent(player))
-        common_moves = set(player1) & set(player2)
-        player1_moves = len(player1)
-        player2_moves = len(player2)
-        unique_player1_moves = len(set(player1) - common_moves)
-        unique_player2_moves = len(set(player2) - common_moves)
-        return float((player1_moves + unique_player1_moves) - (player2_moves + unique_player2_moves)) / (player1_moves + unique_player1_moves + 1)
+        player1_moves = game.get_legal_moves(player)
+        player2_moves = game.get_legal_moves(game.get_opponent(player))
+        center_x, center_y = int(game.width / 2), int(game.height / 2)
+        center1 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player1_moves])
+        center2 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player2_moves])
+        return center1 / (center2 + 1.0)
 
 
 def custom_score_2(game, player):
@@ -78,12 +76,14 @@ def custom_score_2(game, player):
     elif game.is_winner(player):
         return float("inf")
     else:
-        player1_moves = game.get_legal_moves(player)
-        player2_moves = game.get_legal_moves(game.get_opponent(player))
-        center_x, center_y = int(game.width / 2), int(game.height / 2)
-        center1 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player1_moves])
-        center2 = sum([1. / (abs(x - center_x) + abs(y - center_y) + 1.) for x, y in player2_moves])
-        return center1 / (center2 + 1.0)
+        player1 = game.get_legal_moves(player)
+        player2 = game.get_legal_moves(game.get_opponent(player))
+        common_moves = set(player1) & set(player2)
+        player1_moves = len(player1)
+        player2_moves = len(player2)
+        unique_player1_moves = len(set(player1) - common_moves)
+        unique_player2_moves = len(set(player2) - common_moves)
+        return float((player1_moves + unique_player1_moves) - (player2_moves + unique_player2_moves)) / (player1_moves + unique_player1_moves + 1)
 
 
 def custom_score_3(game, player):
